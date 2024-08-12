@@ -1,14 +1,19 @@
+#define DEBUG
+
 // 注意glad的头文件必须在glfw头文件之前
 extern "C" {
 #include <glad/glad.h>
 }
 #include <GLFW/glfw3.h>
 #include <TIMER/Timer.h>
+#include <Error.h>
+#include <assert.h>
 #include <iostream>
 
 // 窗体大小变化响应函数
 void frameBufferSizeCallBack(GLFWwindow *window, int width, int height) {
-	std::cout << "Window size set to : " << width << ", " << height << ".\n";
+	// std::cout << "Window size set to : " << width << ", " << height << ".\n";
+	glViewport(0, 0, width, height);
 }
 
 // 键盘消息响应函数
@@ -54,7 +59,6 @@ void keyCallBack(GLFWwindow *window, int key, int scanCode, int action, int mods
 
 int main(int argc, char **argv)
 {
-	// ==========================================================================
 	// UNIT_MILI;
 	// OpenGL 初始化
 	glfwInit();
@@ -62,7 +66,8 @@ int main(int argc, char **argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);				   // 设置次版本号
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 设置核心模式
 
-	// ==========================================================================
+
+
 	// 创建OpenGL的上下文
 	// 构造窗体对象
 	GLFWwindow *window = glfwCreateWindow(800, 600, "test", nullptr, nullptr);
@@ -78,37 +83,36 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	// ==========================================================================
+
 
 	// 设置OpenGL的状态
 	// 设置监听窗体大小变化
 	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallBack);
-
 	// 设置监听键盘消息
 	glfwSetKeyCallback(window, keyCallBack);
-
 	// 设置opengl视口以及纯色背景
 	glViewport(0, 0, 800, 600);
 	glClearColor(0.2f, 0.3f, 0.3f, 0.8f);
 
-	// ==========================================================================
+	// 设置error检查
+
+
 	// 执行窗口循环
 	while (!glfwWindowShouldClose(window))
 	{
-		// SCOPE_TIMER
-
+		SCOPE_TIMER
 		// 清理颜色
-		glClear(GL_COLOR_BUFFER_BIT);
+		CALL(glClear(-1);)
 		// 接收并分发消息
-		glfwPollEvents(); 
+		glfwPollEvents();
+
+		// assert(!ErrorCheck());
 
 		// 双缓冲
 		glfwSwapBuffers(window);
 	}
-	// ==========================================================================
+
 	// 结束程序
 	glfwTerminate();
-	// ==========================================================================
-
 	return 0;
 }
