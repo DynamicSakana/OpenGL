@@ -8,8 +8,7 @@ extern "C"
 #include <iostream>
 bool ErrorCheck() {
 	GLenum errorCode = glGetError();
-	switch (errorCode)
-	{
+	switch (errorCode) {
 	case GL_INVALID_ENUM:
 		std::cout << "Invalid enum\n";
 		break;

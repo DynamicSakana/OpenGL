@@ -1,5 +1,5 @@
 #pragma once
-
+#define DEBUG
 #ifdef DEBUG
 #define CALL(func) \
 	func;          \
