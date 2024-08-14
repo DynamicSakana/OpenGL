@@ -64,8 +64,6 @@ void SingleBuffer() {
 void RenderTriangle() {
 	// 清理颜色
 	CALL(glClear(GL_COLOR_BUFFER_BIT));
-	// 绑定一个shader程序 
-	shader->BeginUse();
 	// 绑定一个vao(模型)
 	CALL(glBindVertexArray(vao));
 	// 发出绘制指令
@@ -77,20 +75,17 @@ void RenderTriangle() {
 	// CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 6));
 	// CALL(glDrawArrays(GL_TRIANGLE_FAN, 0, 6));
 	CALL(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
-	shader->StopUse();
 }
 
 void RenderLine() {
 	// 清理颜色
 	CALL(glClear(GL_COLOR_BUFFER_BIT));
 	// 绑定一个shader程序 
-	shader->BeginUse();
 	// 绑定一个vao(模型)
 	CALL(glBindVertexArray(vao));
 	// 发出绘制指令
 	// CALL(glDrawArrays(GL_LINES, 0, 6));
 	// CALL(glDrawArrays(GL_LINE_STRIP, 0, 6));
-	shader->StopUse();
 }
 
 void EBO() {
@@ -128,16 +123,22 @@ void EBO() {
 	// vao创建
 	CALL(glGenVertexArrays(1, &vao));
 	CALL(glBindVertexArray(vao));
-	
+
+	// 动态获取位置
+	// glGetAttriLocation会按照vertex shader中in的位置决定属性的写入位置
+	GLuint posLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_pos"));
+	GLuint colorLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_color"));
+
 	// 绑定vbo，ebo加入属性描述信息
+	// 加入位置信息
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, posvbo));
 	CALL(glEnableVertexAttribArray(0));
-	CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
-
+	CALL(glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	// 加入颜色信息
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
 	CALL(glEnableVertexAttribArray(1));
-	CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
-
+	CALL(glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	// 加入ebo信息
 	CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
 }
 
@@ -158,7 +159,10 @@ int main(int argc, char** argv) {
 
 	// 执行窗口循环
 	while (app.LoopGoing()) {
+		shader->BeginUse();
+		shader->SetUniform("u_time", glfwGetTime());
 		RenderTriangle();
+		shader->StopUse();
 	}
 
 	// 结束程序

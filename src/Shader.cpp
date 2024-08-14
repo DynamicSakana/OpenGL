@@ -97,5 +97,14 @@ inline void Shader::LinkShader(GLint vShader, GLint fShader) {
 
 Shader::~Shader() { }
 
-void Shader::BeginUse() { CALL(glUseProgram(m_program)); }
-void Shader::StopUse() { CALL(glUseProgram(0)); }
+void Shader::BeginUse() const { CALL(glUseProgram(m_program)); }
+void Shader::StopUse() const { CALL(glUseProgram(0)); }
+GLuint Shader::GetProgram() const { return m_program; }
+
+void Shader::SetUniform(const std::string& name, float value) const {
+	using namespace std;
+	// 通过名称获取uniform变量的位置
+	GLuint location = CALL(glGetUniformLocation(m_program, name.c_str()));
+	// 通过location更新uniform变量的值
+	CALL(glUniform1f(location, value));
+}

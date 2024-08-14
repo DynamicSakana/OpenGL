@@ -8,16 +8,16 @@
 #define ASSERT(func)
 #endif
 
-void GenShader();
-
 class Shader {
 public:
 	Shader(const char* vertPath, const char* fragPath);
 	~Shader();
 
-	void BeginUse();	// 开始使用该着色器
-	void StopUse();		// 结束使用该着色器
+	void BeginUse() const;		// 开始使用该着色器
+	void StopUse() const;		// 结束使用该着色器
+	GLuint GetProgram() const;	// 获取着色器编号
 
+	void SetUniform(const std::string&, float) const;
 private:
 	// 生成shader可执行程序
 	inline void GenShader(const char* vertexShaderSrc, const char* fragmentShaderSrc);
