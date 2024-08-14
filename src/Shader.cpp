@@ -6,6 +6,8 @@ extern "C" {
 #include <iostream>
 #include "include/Error.h"
 
+extern GLuint program;
+
 void GenShader() {
 	// 编写shader的源代码
 	const char* vertexShaderSrc =
@@ -55,7 +57,7 @@ void GenShader() {
 
 	// 链接两个shader程序
 	// 创建shaders program盒子
-	GLint program = glCreateProgram();
+	program = glCreateProgram();
 	// 将编译好的两个shader放入这个盒子
 	CALL(glAttachShader(program, vShader));
 	CALL(glAttachShader(program, fShader));

@@ -7,7 +7,10 @@ extern "C" {
 #include <iostream>
 bool ErrorCheck() {
 	GLenum errorCode = glGetError();
-	if (errorCode) {
+	if (!errorCode) {
+		return errorCode;
+	}
+	else {
 		std::cout << "[Error]: ";
 		switch (errorCode) {
 		case GL_INVALID_ENUM:
@@ -26,6 +29,6 @@ bool ErrorCheck() {
 			std::cout << "unkown error: error code: " << errorCode << "\n";
 			break;
 		}
+		return errorCode;
 	}
-	return errorCode;
 }

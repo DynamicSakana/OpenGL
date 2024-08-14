@@ -6,7 +6,7 @@
 #ifdef DEBUG
 #define CALL(func) \
 	func;          \
-	assert(!ErrorCheck());
+	assert(!ErrorCheck())
 #else
 #define CALL(func) func;
 #endif

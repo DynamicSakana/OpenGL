@@ -1,5 +1,6 @@
 #pragma once
 
+#define APPINIT Application::GetInstance()
 #define app Application::GetInstance()
 
 class GLFWwindow;
