@@ -1,8 +1,5 @@
 #include "Error.h"
-extern "C" {
-#include <glad/glad.h>
-}
-#include <GLFW/glfw3.h>
+#include <include/glAPI.h>
 #include <assert.h>
 #include <iostream>
 bool ErrorCheck() {

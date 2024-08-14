@@ -1,5 +1,5 @@
 #pragma once
-
+#include <include/compile.h>
 #define APPINIT Application::GetInstance()
 #define app Application::GetInstance()
 

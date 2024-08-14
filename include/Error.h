@@ -1,7 +1,6 @@
 #pragma once
 #include <assert.h>
-
-#define DEBUG
+#include <include/compile.h>
 
 #ifdef DEBUG
 #define CALL(func) \

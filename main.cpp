@@ -1,8 +1,5 @@
 // 注意glad的头文件必须在glfw头文件之前
-extern "C" {
-#include <glad/glad.h>
-}
-#include <GLFW/glfw3.h>
+#include <include/glAPI.h>
 #include <iostream>
 
 #include "TIMER/Timer.h"
@@ -11,7 +8,9 @@ extern "C" {
 #include "include/Respond.h"
 #include "include/Shader.h"
 
-GLuint program, vao;
+
+GLuint vao;
+Shader* shader = nullptr;
 
 void InterleavedBuffer() {
 	// 创建数据
@@ -29,8 +28,8 @@ void InterleavedBuffer() {
 	// 创建并表示vao
 	// GLuint vao;
 	CALL(glGenVertexArrays(1, &vao));
-	CALL(glBindVertexArray(vao));
 	// 为vao加入描述信息
+	CALL(glBindVertexArray(vao));
 	CALL(glEnableVertexAttribArray(0));
 	CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0));
 	CALL(glEnableVertexAttribArray(1));
@@ -66,7 +65,7 @@ void RenderTriangle() {
 	// 清理颜色
 	CALL(glClear(GL_COLOR_BUFFER_BIT));
 	// 绑定一个shader程序 
-	CALL(glUseProgram(program));
+	shader->BeginUse();
 	// 绑定一个vao(模型)
 	CALL(glBindVertexArray(vao));
 	// 发出绘制指令
@@ -77,19 +76,21 @@ void RenderTriangle() {
 	// CALL(glDrawArrays(GL_TRIANGLES, 0, 6));
 	// CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 6));
 	// CALL(glDrawArrays(GL_TRIANGLE_FAN, 0, 6));
-	CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+	CALL(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
+	shader->StopUse();
 }
 
 void RenderLine() {
 	// 清理颜色
 	CALL(glClear(GL_COLOR_BUFFER_BIT));
 	// 绑定一个shader程序 
-	CALL(glUseProgram(program));
+	shader->BeginUse();
 	// 绑定一个vao(模型)
 	CALL(glBindVertexArray(vao));
 	// 发出绘制指令
 	// CALL(glDrawArrays(GL_LINES, 0, 6));
 	// CALL(glDrawArrays(GL_LINE_STRIP, 0, 6));
+	shader->StopUse();
 }
 
 void EBO() {
@@ -98,19 +99,27 @@ void EBO() {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		0.0f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f
+	};
+
+	float color[] = {
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f
 	};
 
 	uint32_t index[] = {
-		0, 1, 2,
-		2, 1, 3
+		0, 1, 2
 	};
 
 	// 创建vbo
-	GLuint vbo;
-	CALL(glGenBuffers(1, &vbo));
-	CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GLuint posvbo;
+	CALL(glGenBuffers(1, &posvbo));
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, posvbo));
 	CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW));
+	GLuint colorvbo;
+	CALL(glGenBuffers(1, &colorvbo));
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
+	CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
 	// 创建ebo
 	GLuint ebo;
 	CALL(glGenBuffers(1, &ebo));
@@ -121,23 +130,26 @@ void EBO() {
 	CALL(glBindVertexArray(vao));
 	
 	// 绑定vbo，ebo加入属性描述信息
-	CALL(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, posvbo));
 	CALL(glEnableVertexAttribArray(0));
 	CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
+	CALL(glEnableVertexAttribArray(1));
+	CALL(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
 
 	CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
 }
 
 int main(int argc, char** argv) {
 	APPINIT;
-
+	shader = new Shader("assets/Shaders/vertex.vert", "assets/Shaders/fragment.frag");
 	app.WhenWindowResize(ResizeCallback);
 	app.WhenKeyTrigger(keyCallback);
 	app.WhenMouseClick(MouseCallback);
 	app.WhenMouseScroll(MouseScroll);
 	app.WhenMouseMove(MouseMove);
 
-	GenShader();
 	EBO();
 	// InterleavedBuffer();
 	// 设置opengl视口以及纯色背景

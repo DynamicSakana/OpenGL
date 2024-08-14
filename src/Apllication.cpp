@@ -1,5 +1,4 @@
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <include/glAPI.h>
 #include <iostream>
 #include "include/Application.h"
 #include "include/Error.h"
