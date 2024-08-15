@@ -17,7 +17,11 @@ public:
 	void StopUse() const;		// 结束使用该着色器
 	GLuint GetProgram() const;	// 获取着色器编号
 
-	void SetUniform(const std::string&, float) const;
+	void SetUniform(const std::string& uniformName, float value) const;
+	void SetUniform(const std::string& uniformName, int value) const;
+	void SetUniform(const std::string& uniformName, float x, float y, float z) const;
+	void SetSample(const std::string& textureName, unsigned int texUnit);
+
 private:
 	// 生成shader可执行程序
 	inline void GenShader(const char* vertexShaderSrc, const char* fragmentShaderSrc);

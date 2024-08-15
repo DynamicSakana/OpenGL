@@ -1,6 +1,7 @@
 #pragma once
 #include <include/compile.h>
-#define APPINIT Application::GetInstance()
+// 应通过这个宏来初始化窗口，而非app
+#define APPINIT(x, y) Application::GetInstance(x, y)
 #define app Application::GetInstance()
 
 class GLFWwindow;

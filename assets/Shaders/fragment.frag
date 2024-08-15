@@ -1,9 +1,12 @@
-#version 330 core
+#version 460 core
+uniform sampler2D samp;
+uniform float u_velocity;
 uniform float u_time;
-in vec3 color;
+in vec2 uv;
+
 out vec4 FragColor;
+
 void main()
 {
-	float density = (cos(u_time) + 1) / 2;
-	FragColor = vec4(vec3(density) + color, 1.0);
+	FragColor = vec4(texture(samp, uv));
 }

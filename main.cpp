@@ -2,15 +2,16 @@
 #include <include/glAPI.h>
 #include <iostream>
 
-#include "TIMER/Timer.h"
+#include "Timer/Timer.h"
 #include "include/Error.h"
 #include "include/Application.h"
 #include "include/Respond.h"
 #include "include/Shader.h"
-
+#include "include/Texture.h"
 
 GLuint vao;
 Shader* shader = nullptr;
+Texture* texture = nullptr;
 
 void InterleavedBuffer() {
 	// 创建数据
@@ -71,10 +72,10 @@ void RenderTriangle() {
 	// GL_TRIANGLES：每相邻三个点构成一个三角形（012，345，共两个三角形）
 	// GL_TRIANGLE_STRIP：每相邻三个点构成一个三角形（012，123，234，345，共四个三角形）
 	// GL_TRIANGLE_FAN：每两个点和0号点构成一个三角形（012，023，034，045，共四个三角形）
-	// CALL(glDrawArrays(GL_TRIANGLES, 0, 6));
+	// CALL(glDrawArrays(GL_TRIANGLES, 0, 3));
 	// CALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 6));
 	// CALL(glDrawArrays(GL_TRIANGLE_FAN, 0, 6));
-	CALL(glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0));
+	CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 }
 
 void RenderLine() {
@@ -91,19 +92,29 @@ void RenderLine() {
 void EBO() {
 	// vao数据
 	float pos[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f,
+		0.75f, 0.75f, 0.0f,
+		-0.75f, 0.75f, 0.0f,
+		-0.75f, -0.75f, 0.0f,
+		0.75f, -0.75f, 0.0f,
 	};
 
 	float color[] = {
 		1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f
+		0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f
+	};
+
+	float uv[] = {
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f
 	};
 
 	uint32_t index[] = {
-		0, 1, 2
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	// 创建vbo
@@ -115,6 +126,10 @@ void EBO() {
 	CALL(glGenBuffers(1, &colorvbo));
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
 	CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
+	GLuint uvvbo;
+	CALL(glGenBuffers(1, &uvvbo));
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, uvvbo));
+	CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_STATIC_DRAW));
 	// 创建ebo
 	GLuint ebo;
 	CALL(glGenBuffers(1, &ebo));
@@ -127,23 +142,28 @@ void EBO() {
 	// 动态获取位置
 	// glGetAttriLocation会按照vertex shader中in的位置决定属性的写入位置
 	GLuint posLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_pos"));
-	GLuint colorLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_color"));
+	// GLuint colorLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_color"));
+	GLuint uvLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_uv"));
 
 	// 绑定vbo，ebo加入属性描述信息
 	// 加入位置信息
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, posvbo));
-	CALL(glEnableVertexAttribArray(0));
+	CALL(glEnableVertexAttribArray(posLocation));
 	CALL(glVertexAttribPointer(posLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
 	// 加入颜色信息
-	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
-	CALL(glEnableVertexAttribArray(1));
-	CALL(glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	// CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
+	// CALL(glEnableVertexAttribArray(colorLocation));
+	// CALL(glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+	// 加入uv信息
+	CALL(glBindBuffer(GL_ARRAY_BUFFER, uvvbo));
+	CALL(glEnableVertexAttribArray(uvLocation));
+	CALL(glVertexAttribPointer(uvLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0));
 	// 加入ebo信息
 	CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
 }
 
 int main(int argc, char** argv) {
-	APPINIT;
+	APPINIT(2560, 1440);
 	shader = new Shader("assets/Shaders/vertex.vert", "assets/Shaders/fragment.frag");
 	app.WhenWindowResize(ResizeCallback);
 	app.WhenKeyTrigger(keyCallback);
@@ -152,19 +172,21 @@ int main(int argc, char** argv) {
 	app.WhenMouseMove(MouseMove);
 
 	EBO();
+	texture = new Texture("assets/texture/HighResolution.jpg", 0);
+	texture->BindTexture();
 	// InterleavedBuffer();
-	// 设置opengl视口以及纯色背景
-	// CALL(glViewport(0, 0, 800, 600));
 	CALL(glClearColor(0.2f, 0.3f, 0.3f, 0.8f));
 
 	// 执行窗口循环
 	while (app.LoopGoing()) {
 		shader->BeginUse();
-		shader->SetUniform("u_time", glfwGetTime());
+		shader->SetUniform("u_time", float(glfwGetTime()));
+		shader->SetUniform("u_velocity", 0.5f);
+		shader->SetSample("samp", texture->GetTextureUnit());
 		RenderTriangle();
 		shader->StopUse();
 	}
-
+	delete texture;
 	// 结束程序
 	glfwTerminate();
 	return 0;

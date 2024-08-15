@@ -20,14 +20,14 @@ Application::Application(uint32_t width, uint32_t height) {
 
 	m_window = glfwCreateWindow(m_width, m_height, "application", nullptr, nullptr);
 	if (!m_window) {
-		std::cout << "Failed to create a window.\n";
+		std::cout << "[Error]: Failed to create a window.\n";
 		exit(EXIT_FAILURE);
 	}
 
 	glfwMakeContextCurrent(m_window); // 设置该对象为OpenGL的上下文
 	// 使用glad加载函数，该函数必须在有上下文的时候才能够正确加载函数
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD.\n";
+		std::cout << "[Error]: Failed to initialize GLAD.\n";
 		exit(EXIT_FAILURE);
 	}
 }
@@ -56,6 +56,7 @@ bool Application::LoopGoing() {
 	glfwSwapBuffers(m_window);
 	return true;
 }
+
 void Application::Exit() {
 	glfwTerminate();
 }
