@@ -1,12 +1,16 @@
 #version 460 core
-uniform sampler2D samp;
-uniform float u_velocity;
-uniform float u_time;
+uniform sampler2D skySampler;
+uniform sampler2D catSampler;
+uniform sampler2D cloudSampler;
+
 in vec2 uv;
+in vec3 color;
 
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = vec4(texture(samp, uv));
+	float weight = texture(catSampler, uv).r;
+	vec4 finalColor = texture(skySampler, uv) * weight + texture(cloudSampler, uv) * (1.0 - weight);
+	FragColor = vec4(finalColor.xyz, 1.0);
 }

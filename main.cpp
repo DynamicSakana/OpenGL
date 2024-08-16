@@ -11,7 +11,7 @@
 
 GLuint vao;
 Shader* shader = nullptr;
-Texture* texture = nullptr;
+Texture* sky, * cat, * cloud = nullptr;
 
 void InterleavedBuffer() {
 	// 创建数据
@@ -98,12 +98,12 @@ void EBO() {
 		0.75f, -0.75f, 0.0f,
 	};
 
-	float color[] = {
-		1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		0.5f, 0.5f, 0.5f
-	};
+	// float color[] = {
+	// 	1.0f, 0.0f, 0.0f,
+	// 	0.0f, 1.0f, 0.0f,
+	// 	0.0f, 0.0f, 1.0f,
+	// 	1.0f, 1.0f, 1.0f
+	// };
 
 	float uv[] = {
 		1.0f, 1.0f,
@@ -125,7 +125,7 @@ void EBO() {
 	GLuint colorvbo;
 	CALL(glGenBuffers(1, &colorvbo));
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, colorvbo));
-	CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
+	// CALL(glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW));
 	GLuint uvvbo;
 	CALL(glGenBuffers(1, &uvvbo));
 	CALL(glBindBuffer(GL_ARRAY_BUFFER, uvvbo));
@@ -141,9 +141,9 @@ void EBO() {
 
 	// 动态获取位置
 	// glGetAttriLocation会按照vertex shader中in的位置决定属性的写入位置
-	GLuint posLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_pos"));
-	// GLuint colorLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_color"));
-	GLuint uvLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_uv"));
+	GLint posLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_pos"));
+	// GLint colorLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_color"));
+	GLint uvLocation = CALL(glGetAttribLocation(shader->GetProgram(), "a_uv"));
 
 	// 绑定vbo，ebo加入属性描述信息
 	// 加入位置信息
@@ -163,7 +163,7 @@ void EBO() {
 }
 
 int main(int argc, char** argv) {
-	APPINIT(2560, 1440);
+	APPINIT(1440, 1440);
 	shader = new Shader("assets/Shaders/vertex.vert", "assets/Shaders/fragment.frag");
 	app.WhenWindowResize(ResizeCallback);
 	app.WhenKeyTrigger(keyCallback);
@@ -172,21 +172,25 @@ int main(int argc, char** argv) {
 	app.WhenMouseMove(MouseMove);
 
 	EBO();
-	texture = new Texture("assets/texture/HighResolution.jpg", 0);
-	texture->BindTexture();
+	sky = new Texture("assets/texture/Sky.jpg", 0);
+	cat = new Texture("assets/texture/Cat.jpg", 1);
+	cloud = new Texture("assets/texture/Cloud.jpg", 2);
+	// sky->BindTexture();
 	// InterleavedBuffer();
 	CALL(glClearColor(0.2f, 0.3f, 0.3f, 0.8f));
 
 	// 执行窗口循环
 	while (app.LoopGoing()) {
 		shader->BeginUse();
-		shader->SetUniform("u_time", float(glfwGetTime()));
-		shader->SetUniform("u_velocity", 0.5f);
-		shader->SetSample("samp", texture->GetTextureUnit());
+		// shader->SetUniform("u_time", float(glfwGetTime()));
+		// shader->SetUniform("u_velocity", 0.5f);
+		shader->SetSample("skySampler", sky->GetTextureUnit());
+		shader->SetSample("catSampler", cat->GetTextureUnit());
+		shader->SetSample("cloudSampler", cloud->GetTextureUnit());
 		RenderTriangle();
 		shader->StopUse();
 	}
-	delete texture;
+	delete sky;
 	// 结束程序
 	glfwTerminate();
 	return 0;
