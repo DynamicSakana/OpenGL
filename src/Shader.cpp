@@ -108,11 +108,11 @@ void Shader::SetUniform(const std::string& name, float value) const {
 	CALL(glUniform1f(location, value));
 }
 
-void Shader::SetUniform(const std::string& name, float x, float y, float z) const {
+void Shader::SetUniform(const std::string& name, double value) const {
 	// 通过名称获取uniform变量的位置
 	GLuint location = CALL(glGetUniformLocation(m_program, name.c_str()));
 	// 通过location更新uniform变量的值
-	CALL(glUniform3f(location, x, y, z));
+	CALL(glUniform1d(location, value));
 }
 
 void Shader::SetUniform(const std::string& name, int value) const {
@@ -120,6 +120,13 @@ void Shader::SetUniform(const std::string& name, int value) const {
 	GLuint location = CALL(glGetUniformLocation(m_program, name.c_str()));
 	// 通过location更新uniform变量的值
 	CALL(glUniform1i(location, value));
+}
+
+void Shader::SetUniform(const std::string& name, float x, float y, float z) const {
+	// 通过名称获取uniform变量的位置
+	GLuint location = CALL(glGetUniformLocation(m_program, name.c_str()));
+	// 通过location更新uniform变量的值
+	CALL(glUniform3f(location, x, y, z));
 }
 
 void Shader::SetSample(const std::string& textureName, unsigned int texUnit) {

@@ -10,7 +10,5 @@ out vec4 FragColor;
 
 void main()
 {
-	float weight = texture(catSampler, uv).r;
-	vec4 finalColor = texture(skySampler, uv) * weight + texture(cloudSampler, uv) * (1.0 - weight);
-	FragColor = vec4(finalColor.xyz, 1.0);
+	FragColor = vec4(texture(cloudSampler, uv).rgb, 1.0);
 }

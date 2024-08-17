@@ -8,6 +8,8 @@ public:
 
 	void BindTexture();
 	unsigned int GetTextureUnit();	// 返回该Texture绑定的纹理单元
+	int GetWidth() const;
+	int GetHeight() const;
 
 private:
 	GLuint m_texture;		// 该texture的编号

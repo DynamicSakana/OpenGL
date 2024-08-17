@@ -18,6 +18,7 @@ public:
 	GLuint GetProgram() const;	// 获取着色器编号
 
 	void SetUniform(const std::string& uniformName, float value) const;
+	void SetUniform(const std::string& uniformName, double value) const;
 	void SetUniform(const std::string& uniformName, int value) const;
 	void SetUniform(const std::string& uniformName, float x, float y, float z) const;
 	void SetSample(const std::string& textureName, unsigned int texUnit);

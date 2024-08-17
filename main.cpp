@@ -11,7 +11,7 @@
 
 GLuint vao;
 Shader* shader = nullptr;
-Texture* sky, * cat, * cloud = nullptr;
+Texture* sky, * cat, * cloud, * firefly= nullptr;
 
 void InterleavedBuffer() {
 	// 创建数据
@@ -163,7 +163,7 @@ void EBO() {
 }
 
 int main(int argc, char** argv) {
-	APPINIT(1440, 1440);
+	APPINIT(1000, 1000);
 	shader = new Shader("assets/Shaders/vertex.vert", "assets/Shaders/fragment.frag");
 	app.WhenWindowResize(ResizeCallback);
 	app.WhenKeyTrigger(keyCallback);
@@ -175,6 +175,7 @@ int main(int argc, char** argv) {
 	sky = new Texture("assets/texture/Sky.jpg", 0);
 	cat = new Texture("assets/texture/Cat.jpg", 1);
 	cloud = new Texture("assets/texture/Cloud.jpg", 2);
+	firefly = new Texture("assets/texture/LowResolution.jpg", 3);
 	// sky->BindTexture();
 	// InterleavedBuffer();
 	CALL(glClearColor(0.2f, 0.3f, 0.3f, 0.8f));
@@ -186,12 +187,14 @@ int main(int argc, char** argv) {
 		// shader->SetUniform("u_velocity", 0.5f);
 		shader->SetSample("skySampler", sky->GetTextureUnit());
 		shader->SetSample("catSampler", cat->GetTextureUnit());
-		shader->SetSample("cloudSampler", cloud->GetTextureUnit());
+		//shader->SetSample("cloudSampler", cloud->GetTextureUnit());
+		shader->SetSample("cloudSampler", firefly->GetTextureUnit());
+		shader->SetUniform("u_time", (float)glfwGetTime());
 		RenderTriangle();
 		shader->StopUse();
 	}
 	delete sky;
 	// 结束程序
-	glfwTerminate();
+	app.Exit();
 	return 0;
 }
